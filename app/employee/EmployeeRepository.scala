@@ -6,7 +6,6 @@ import slick.jdbc.MySQLProfile.api._
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import employee.Table.employees
 
 @Singleton
 class EmployeeRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) {
@@ -15,6 +14,10 @@ class EmployeeRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
   import dbConfig._
 
   def findAll(): Future[Seq[Employee]] = {
-    db.run(employees.result)
+    db.run(Table.employees.result)
+  }
+
+  def findById(id: Long): Future[Option[Employee]] = {
+    db.run(Table.employees.filter(_.id === id).result.headOption)
   }
 }
