@@ -1,6 +1,7 @@
 package employee
 
 import utils.ApiError
+import utils.validation.EmployeeValidator
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -16,6 +17,24 @@ class EmployeeService @Inject()(employeeRepository: EmployeeRepository)(implicit
     employeeRepository.findById(id).map {
       case Some(employee) => Right(EmployeeResponse.fromModel(employee))
       case None => Left(ApiError.NotFound(s"Employee with id #$id was not found!"))
+    }
+  }
+
+  def createEmployee(data: CreateEmployeeDto): Future[Either[ApiError, EmployeeResponse]] = {
+    val errors = EmployeeValidator.validateCreate(data)
+    if (errors.nonEmpty) {
+      Future.successful(Left(ApiError.ValidationError(errors)))
+    } else {
+      val preSavedEmployee = Employee(
+        id = None,
+        firstName = data.firstName.trim,
+        lastName = data.lastName.trim,
+        email = data.email.trim,
+        mobileNumber = data.mobileNumber.trim,
+        address = data.address.trim
+      )
+
+      employeeRepository.create(preSavedEmployee).map(saveEmployee => Right(EmployeeResponse.fromModel(saveEmployee)))
     }
   }
 }
