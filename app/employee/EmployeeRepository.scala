@@ -27,4 +27,12 @@ class EmployeeRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
     val insertQuery = employees returning employees.map(_.id) into ((emp, id) => emp.copy(id = Some(id)))
     db.run(insertQuery += employee)
   }
+
+  def update(employee: Employee): Future[Employee] = {
+    val query = employees.filter(_.id === employee.id.get)
+      .map(e => (e.firstName, e.lastName, e.mobileNumber, e.email, e.address))
+      .update((employee.firstName, employee.lastName, employee.mobileNumber, employee.email, employee.address))
+
+    db.run(query).map(_ => employee)
+  }
 }

@@ -21,7 +21,7 @@ class EmployeeService @Inject()(employeeRepository: EmployeeRepository)(implicit
   }
 
   def createEmployee(data: CreateEmployeeDto): Future[Either[ApiError, EmployeeResponse]] = {
-    val errors = EmployeeValidator.validateCreate(data)
+    val errors = EmployeeValidator.createValidate(data)
     if (errors.nonEmpty) {
       Future.successful(Left(ApiError.ValidationError(errors)))
     } else {
@@ -35,6 +35,27 @@ class EmployeeService @Inject()(employeeRepository: EmployeeRepository)(implicit
       )
 
       employeeRepository.create(preSavedEmployee).map(saveEmployee => Right(EmployeeResponse.fromModel(saveEmployee)))
+    }
+  }
+
+  def updateEmployeeById(id: Long, data: UpdateEmployeeDto): Future[Either[ApiError, EmployeeResponse]] = {
+    val errors = EmployeeValidator.validatePatch(data)
+    if (errors.nonEmpty) {
+      Future.successful(Left(ApiError.ValidationError(errors)))
+    } else {
+      employeeRepository.findById(id).flatMap {
+        case None => Future.successful((Left(ApiError.NotFound(s"Employee with id $id was not found!"))))
+        case Some(existing) =>
+          val updated = existing.copy(
+            firstName = data.firstName.map(_.trim).getOrElse(existing.firstName),
+            lastName = data.lastName.map(_.trim).getOrElse(existing.lastName),
+            email = data.email.map(_.trim).getOrElse(existing.email),
+            mobileNumber = data.mobileNumber.map(_.trim).getOrElse(existing.mobileNumber),
+            address = data.address.map(_.trim).getOrElse(existing.address)
+          )
+
+          employeeRepository.update(updated).map(employee => Right(EmployeeResponse.fromModel(employee)))
+      }
     }
   }
 }

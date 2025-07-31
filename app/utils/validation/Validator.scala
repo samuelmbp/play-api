@@ -1,6 +1,6 @@
 package utils.validation
 
-import employee.CreateEmployeeDto
+import employee.{CreateEmployeeDto, UpdateEmployeeDto}
 
 trait Validator {
 
@@ -18,13 +18,23 @@ trait Validator {
 }
 
 object EmployeeValidator extends Validator {
-  def validateCreate(dto: CreateEmployeeDto): Map[String, String] = {
+  def createValidate(dto: CreateEmployeeDto): Map[String, String] = {
     List(
       isNonEmpty("firstName", dto.firstName),
       isNonEmpty("lastName", dto.lastName),
       isNonEmpty("email", dto.email),
       isNonEmpty("mobileNumber", dto.mobileNumber),
       isNonEmpty("address", dto.address)
+    ).flatten.toMap
+  }
+
+  def validatePatch(dto: UpdateEmployeeDto): Map[String, String] = {
+    List(
+      isNonBlankDefined("firstName", dto.firstName),
+      isNonBlankDefined("lastName", dto.lastName),
+      isNonBlankDefined("email", dto.email),
+      isNonBlankDefined("mobileNumber", dto.mobileNumber),
+      isNonBlankDefined("address", dto.address)
     ).flatten.toMap
   }
 }

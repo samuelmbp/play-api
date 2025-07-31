@@ -25,7 +25,7 @@ class EmployeeController @Inject()
     }
   }
 
-  def createEmployee:Action[JsValue] = Action.async(parse.json) { request =>
+  def createEmployee: Action[JsValue] = Action.async(parse.json) { request =>
     request.body.validate[CreateEmployeeDto] match {
       case JsSuccess(dto, _) =>
         employeeService.createEmployee(dto).map {
@@ -36,4 +36,14 @@ class EmployeeController @Inject()
     }
   }
 
+  def updateEmployeeById(id: Long): Action[JsValue] = Action.async(parse.json) { request =>
+    request.body.validate[UpdateEmployeeDto] match {
+      case JsSuccess(dto, _) =>
+        employeeService.updateEmployeeById(id, dto).map {
+          case Right(response) => Ok(Json.toJson(response))
+          case Left(error) => error.toResult
+        }
+      case e: JsError => Future.successful(ApiError.InvalidJson(e).toResult)
+    }
+  }
 }
