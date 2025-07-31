@@ -6,3 +6,4 @@ GET /employees          employee.EmployeeController.getAllEmployees
 GET /employees/:id      employee.EmployeeController.getEmployeeById(id: Long)
 POST /employees         employee.EmployeeController.createEmployee
 PATCH /employees/:id    employee.EmployeeController.updateEmployeeById(id: Long)
+DELETE /employees/:id   employee.EmployeeController.deleteEmployeeById(id: Long)

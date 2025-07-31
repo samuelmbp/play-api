@@ -46,4 +46,11 @@ class EmployeeController @Inject()
       case e: JsError => Future.successful(ApiError.InvalidJson(e).toResult)
     }
   }
+
+  def deleteEmployeeById(id: Long):Action[AnyContent] = Action.async {
+    employeeService.deleteEmployeeById(id).map {
+      case Right(_) => NoContent
+      case Left(error) => error.toResult
+    }
+  }
 }
