@@ -1,5 +1,7 @@
 package contract
 
+import utils.ApiError
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -11,6 +13,13 @@ class ContractService @Inject()(contractRepository: ContractRepository)(implicit
       results.map {case (contract, employeeName) =>
         ContractResponse.fromModel(contract, employeeName)
       }
+    }
+  }
+
+  def getContractById(id: Long): Future[Either[ApiError, ContractResponse]] = {
+    contractRepository.findContractById(id).map {
+      case Some((contract, employeeName)) => Right(ContractResponse.fromModel(contract, employeeName))
+      case None => Left(ApiError.NotFound(s"Contract with id $id not found."))
     }
   }
 }

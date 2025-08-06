@@ -23,4 +23,15 @@ class ContractRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
 
     db.run(query.result)
   }
+
+  def findContractById(id: Long): Future[Option[(Contract, Option[String])]] = {
+    val query = for {
+      (contract, employeeOptional) <- contracts
+        .joinLeft(employees)
+        .on(_.employeeId === _.id)
+        .filter(_._1.id === id)
+    } yield (contract, employeeOptional.map(_.firstName))
+
+    db.run(query.result.headOption)
+  }
 }
