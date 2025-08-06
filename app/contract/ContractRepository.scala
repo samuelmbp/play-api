@@ -1,5 +1,6 @@
 package contract
 
+import akka.pattern.FutureRef
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 import slick.jdbc.MySQLProfile.api._
@@ -34,4 +35,8 @@ class ContractRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
 
     db.run(query.result.headOption)
   }
+
+  def deleteContract(id: Long): Future[Int] = db.run(contracts.filter(_.id === id).delete)
+
+
 }

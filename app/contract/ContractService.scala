@@ -19,7 +19,14 @@ class ContractService @Inject()(contractRepository: ContractRepository)(implicit
   def getContractById(id: Long): Future[Either[ApiError, ContractResponse]] = {
     contractRepository.findContractById(id).map {
       case Some((contract, employeeName)) => Right(ContractResponse.fromModel(contract, employeeName))
-      case None => Left(ApiError.NotFound(s"Contract with id $id not found."))
+      case None => Left(ApiError.NotFound(s"Contract with id $id not found!"))
+    }
+  }
+
+  def deleteContractById(id: Long): Future[Either[ApiError, Unit]] = {
+    contractRepository.deleteContract(id).map { rowsAffected =>
+      if (rowsAffected > 0) Right(())
+      else Left(ApiError.NotFound(s"Contract with id $id not found!"))
     }
   }
 }
